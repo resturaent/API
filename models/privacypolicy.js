@@ -3,19 +3,8 @@ const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class PrivacyPolicy extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // Define associations here if needed in the future
-      // Example: PrivacyPolicy.hasMany(models.UserAcceptance);
-    }
+    static associate(models) {}
 
-    /**
-     * Get the currently active policy version
-     */
     static async getActiveVersion() {
       return await this.findOne({
         where: { isActive: true },
@@ -23,26 +12,18 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    /**
-     * Get all versions ordered by effective date
-     */
     static async getAllVersions() {
       return await this.findAll({
         order: [["effectiveDate", "DESC"]],
       });
     }
 
-    /**
-     * Set a version as active and deactivate others
-     */
     static async setActiveVersion(versionId) {
       const transaction = await sequelize.transaction();
 
       try {
-        // Deactivate all versions
         await this.update({ isActive: false }, { where: {}, transaction });
 
-        // Activate the specified version
         await this.update(
           { isActive: true },
           { where: { id: versionId }, transaction }
